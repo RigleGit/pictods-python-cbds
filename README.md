@@ -7,12 +7,12 @@ This is not meant to be a perfect replacement for PictoDS, but it should be enou
 
 ## Requirements
 
-Python 3 and Pillow.
+Python 3.10+ and Pillow.
 
 Install Pillow with:
 
 ```bash
-pip install pillow
+python3 -m pip install -r requirements.txt
 ```
 
 Or using your distro package manager
@@ -72,3 +72,21 @@ The generated .cbds contains the folders expected by ComicBookDS:
 * `NAME`
 * `ComicBookDS_book.ini`
 
+## Development
+Install development dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements-dev.txt
+```
+
+Run tests:
+
+```bash
+python -m pytest -q
+```
+
+# License
+MIT
