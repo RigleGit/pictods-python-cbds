@@ -7,7 +7,12 @@ This is not meant to be a perfect replacement for PictoDS, but it should be enou
 
 ## Requirements
 
-Python 3.10+ and Pillow.
+* Python 3.10+ 
+* Pillow
+
+## Installation
+
+### Linux / MacOS
 
 Install Pillow with:
 
@@ -15,37 +20,59 @@ Install Pillow with:
 python3 -m pip install -r requirements.txt
 ```
 
-Or using your distro package manager
+Or using your distro package manager if using Linux
 
 ```bash
 sudo apt install python3-pil
 sudo dnf install python3-pillow
 ```
 
+### Windows
+
+Open PowerShell in the project folder and run
+
+```powershell
+py -m pip install -r requirements.txt
+```
+
 ## Usage
+
+* On Linux/macOS, use `python3` line
+* On Windows, use the `py` line
 
 Convert a CBZ:
 
 ```bash
 python3 make_cbds.py comic.cbz
+py make_cbds.py comic.cbz
 ```
 
 Convert a ZIP:
 
 ```bash
 python3 make_cbds.py comic.zip
+py make_cbds.py comic.zip
+```
+
+Convert a folder of images:
+
+```bash
+python3 make_cbds.py ./comic_pages -o comic.cbds
+py make_cbds.py .\comic_pages -o comic.cbds
 ```
 
 Manga / right-to-left mode:
 
 ```bash
 python3 make_cbds.py manga.cbz --rtl -o manga.cbds
+py make_cbds.py manga.cbz --rtl -o manga.cbds
 ```
 
 Lower JPEG quality to reduce file size:
 
 ```bash
 python3 make_cbds.py comic.cbz -q 80 -o comic.cbds
+py make_cbds.py comic.cbz -q 80 -o comic.cbds
 ```
 
 Supported input:
