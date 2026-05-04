@@ -99,7 +99,7 @@ The generated .cbds contains the folders expected by ComicBookDS:
 * `NAME`
 * `ComicBookDS_book.ini`
 
-## Development
+## Development
 Install development dependencies:
 
 ```bash
