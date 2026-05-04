@@ -4,9 +4,13 @@ import os
 import tempfile
 import zipfile
 from pathlib import Path
+
+import rarfile
 from PIL import Image, ImageOps
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"}
+ZIP_ARCHIVE_EXTS = {".cbz", ".zip"}
+RAR_ARCHIVE_EXTS = {".cbr", ".rar"}
 
 # Folders expected by ComicBookDS
 CBDS_DIRS = {
@@ -56,6 +60,21 @@ def collect_images_from_dir(directory: Path):
 def extract_zip(zip_path: Path, dest: Path):
     with zipfile.ZipFile(zip_path, "r") as z:
         z.extractall(dest)
+
+
+def extract_rar(rar_path: Path, dest: Path):
+    try:
+        with rarfile.RarFile(rar_path, "r") as archive:
+            archive.extractall(dest)
+    except rarfile.RarCannotExec as exc:
+        raise RuntimeError(
+            "RAR extraction requires an installed unrar-compatible tool. "
+            "Install unrar, unar, 7zip, or bsdtar and try again."
+        ) from exc
+    except rarfile.Error as exc:
+        raise RuntimeError(
+            f"Could not extract RAR/CBR archive: {rar_path}"
+        ) from exc
 
 
 def save_jpeg(img: Image.Image, out_path: Path, quality: int):
@@ -168,11 +187,16 @@ def make_cbds(
 
         if source.is_dir():
             images_dir = source
-        elif source.suffix.lower() in {".cbz", ".zip"}:
+        elif source.suffix.lower() in ZIP_ARCHIVE_EXTS:
             extract_zip(source, input_dir)
             images_dir = input_dir
+        elif source.suffix.lower() in RAR_ARCHIVE_EXTS:
+            extract_rar(source, input_dir)
+            images_dir = input_dir
         else:
-            raise ValueError("This script supports image folders, .cbz and .zip files.")
+            raise ValueError(
+                "This script supports image folders, .cbz, .zip, .cbr and .rar files."
+            )
 
         images = collect_images_from_dir(images_dir)
 
@@ -213,10 +237,10 @@ def make_cbds(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Convert an image folder or CBZ/ZIP file to CBDS for ComicBookDS."
+        description="Convert an image folder or CBZ/ZIP/CBR/RAR file to CBDS for ComicBookDS."
     )
 
-    parser.add_argument("source", help="Input folder, .cbz or .zip")
+    parser.add_argument("source", help="Input folder, .cbz, .zip, .cbr or .rar")
 
     parser.add_argument(
         "-o",

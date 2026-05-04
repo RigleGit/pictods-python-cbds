@@ -2,6 +2,7 @@ import io
 import sys
 import zipfile
 import subprocess
+from types import SimpleNamespace
 from pathlib import Path
 
 import pytest
@@ -270,6 +271,49 @@ def test_make_cbds_from_zip_input_with_nested_folder(tmp_path):
     assert "NbPages = 2" in ini
 
 
+def test_make_cbds_from_cbr_input(tmp_path, monkeypatch):
+    images_dir = tmp_path / "images"
+    cbr_path = tmp_path / "comic.cbr"
+    output = tmp_path / "comic.cbds"
+
+    create_test_image(images_dir / "001.jpg")
+    create_test_image(images_dir / "002.jpg")
+    cbr_path.write_bytes(b"fake rar payload")
+
+    class FakeRarFile:
+        def __init__(self, archive_path: Path, mode: str):
+            assert archive_path == cbr_path
+            assert mode == "r"
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def extractall(self, dest: Path):
+            for file in images_dir.iterdir():
+                if file.is_file():
+                    (dest / file.name).write_bytes(file.read_bytes())
+
+    monkeypatch.setattr(
+        "make_cbds.rarfile",
+        SimpleNamespace(RarFile=FakeRarFile, RarCannotExec=RuntimeError),
+    )
+
+    make_cbds(
+        source=cbr_path,
+        output=output,
+        title="CBR Test",
+        quality=90,
+        right_to_left=False,
+    )
+
+    assert output.exists()
+    ini = read_text_from_zip(output, "ComicBookDS_book.ini")
+    assert "NbPages = 2" in ini
+
+
 def test_make_cbds_rejects_missing_source(tmp_path):
     missing = tmp_path / "missing.cbz"
     output = tmp_path / "out.cbds"
@@ -284,11 +328,45 @@ def test_make_cbds_rejects_missing_source(tmp_path):
         )
 
 
-def test_make_cbds_rejects_unsupported_file_type(tmp_path):
+def test_make_cbds_reports_missing_rar_extractor(tmp_path, monkeypatch):
     source = tmp_path / "comic.rar"
     output = tmp_path / "out.cbds"
 
     source.write_bytes(b"not actually a rar")
+
+    class FakeRarCannotExec(Exception):
+        pass
+
+    class FakeRarFile:
+        def __init__(self, archive_path: Path, mode: str):
+            assert archive_path == source
+            assert mode == "r"
+
+        def __enter__(self):
+            raise FakeRarCannotExec("missing extractor")
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    monkeypatch.setattr(
+        "make_cbds.rarfile",
+        SimpleNamespace(RarFile=FakeRarFile, RarCannotExec=FakeRarCannotExec),
+    )
+
+    with pytest.raises(RuntimeError, match="RAR extraction requires"):
+        make_cbds(
+            source=source,
+            output=output,
+            title=None,
+            quality=90,
+            right_to_left=False,
+        )
+
+def test_make_cbds_rejects_unsupported_file_type(tmp_path):
+    source = tmp_path / "comic.7z"
+    output = tmp_path / "out.cbds"
+
+    source.write_bytes(b"not actually a 7z")
 
     with pytest.raises(ValueError, match="supports image folders"):
         make_cbds(

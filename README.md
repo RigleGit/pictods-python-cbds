@@ -1,5 +1,5 @@
 # pictods-python-cbds
-Python script to generate basic .cbds files for [ComicBookDS](https://www.gamebrew.org/wiki/ComicbookDS) from CBZ/ZIP/images.
+Python script to generate basic .cbds files for [ComicBookDS](https://www.gamebrew.org/wiki/ComicbookDS) from CBZ/ZIP/CBR/RAR/images.
 
 [PictoDS](https://www.gamebrew.org/wiki/PictoDS) is very old and can be difficult to run on modern systems, so this script tries to provide a simple command-line alternative for Linux/macOS.
 
@@ -9,22 +9,33 @@ This is not meant to be a perfect replacement for PictoDS, but it should be enou
 
 * Python 3.10+ 
 * Pillow
+* rarfile
+
+* For .cbr/.rar input: an installed RAR extractor supported by rarfile, such as unrar, unar, or bsdtar
 
 ## Installation
 
 ### Linux / MacOS
 
-Install Pillow with:
+Install Pillow and rarfile with:
 
 ```bash
 python3 -m pip install -r requirements.txt
 ```
 
-Or using your distro package manager if using Linux
+Or using your distro package manager if using Linux:
 
 ```bash
 sudo apt install python3-pil
 sudo dnf install python3-pillow
+```
+
+Also unrar tools (depending on your distro/macOS):
+
+```bash
+sudo apt install unrar
+sudo dnf install unrar
+brew install unrar
 ```
 
 ### Windows
@@ -34,6 +45,8 @@ Open PowerShell in the project folder and run
 ```powershell
 py -m pip install -r requirements.txt
 ```
+
+For Windows, install WinRAR, 7-Zip, or another tool that provides RAR extraction support and make sure it is available in PATH.
 
 ## Usage
 
@@ -52,6 +65,13 @@ Convert a ZIP:
 ```bash
 python3 make_cbds.py comic.zip
 py make_cbds.py comic.zip
+```
+
+Convert a CBR:
+
+```bash
+python3 make_cbds.py comic.cbr
+py make_cbds.py comic.cbr
 ```
 
 Convert a folder of images:
@@ -78,6 +98,8 @@ py make_cbds.py comic.cbz -q 80 -o comic.cbds
 Supported input:
 * .cbz
 * .zip
+* .cbr
+* .rar
 * Folder of images
 
 Supported image extensions:
