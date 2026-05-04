@@ -1,7 +1,7 @@
 # pictods-python-cbds
-Python script to generate basic .cbds files for ComicBookDS from CBZ/ZIP/images.
+Python script to generate basic .cbds files for [ComicBookDS](https://www.gamebrew.org/wiki/ComicbookDS) from CBZ/ZIP/images.
 
-PictoDS is very old and can be difficult to run on modern systems, so this script tries to provide a simple command-line alternative for Linux/macOS.
+[PictoDS](https://www.gamebrew.org/wiki/PictoDS) is very old and can be difficult to run on modern systems, so this script tries to provide a simple command-line alternative for Linux/macOS.
 
 This is not meant to be a perfect replacement for PictoDS, but it should be enough to generate basic `.cbds` files.
 
